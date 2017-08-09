@@ -1,0 +1,17 @@
+//model function for saving single product with multiple image
+
+  public function saveProduct($inputdata,$filename)
+    {
+      $this->db->insert('product', $inputdata); 
+      $insert_id = $this->db->insert_id();
+      if($filename!='' ){
+      $filename1 = explode(',',$filename);
+      foreach($filename1 as $file){
+      $file_data = array(
+      'image_name' => $file,
+      'product_id' => $insert_id
+      );
+      $this->db->insert('image', $file_data);
+      }
+      }
+    }
