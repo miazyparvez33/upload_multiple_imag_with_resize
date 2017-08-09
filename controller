@@ -1,0 +1,86 @@
+        //controller function
+        
+        public function Create() {
+
+           
+
+                /*
+                   count the number of file has been uploaded
+                */  
+                   $number_of_files = count($_FILES['multipleFiles']['name']);
+
+                /*
+                   store global file to local variable
+                */  
+                   $files = $_FILES;
+                /*
+                  make sure folder is there if not create one
+                */ 
+
+
+
+                /*
+                   upload file one by one
+                */ 
+
+                for($i=0; $i < $number_of_files ; $i++){
+                   $_FILES['multipleFiles']['name']=$files['multipleFiles']['name'][$i];
+                   $_FILES['multipleFiles']['type']=$files['multipleFiles']['type'][$i];
+                   $_FILES['multipleFiles']['tmp_name']=$files['multipleFiles']['tmp_name'][$i];
+                   $_FILES['multipleFiles']['error']=$files['multipleFiles']['error'][$i];
+                   $_FILES['multipleFiles']['size']=$files['multipleFiles']['size'][$i];
+                   
+                  
+                   
+                    $config['upload_path'] = './uploads/';
+                    $config['allowed_types'] = 'gif|jpg|png';
+                    $imagename = rand().$_FILES['multipleFiles']['name'];
+                    $config['file_name'] = $imagename;
+                    //$config['encrypt_name'] = TRUE;
+                    $this->load->library('upload', $config);
+                    $this->upload->initialize($config);
+                    $this->upload->do_upload();
+                  
+                    $this->load->library('upload',$config);   
+        
+
+              
+
+
+                    if(! $this->upload->do_upload('multipleFiles'))
+                    {
+                        $error = array('error' => $this->upload->display_errors());
+                    }
+                    else
+                    { 
+                    
+                     
+                      $data = array('upload_data' => $this->upload->data());
+
+                        $path=$data['upload_data']['full_path'];
+                        $configi['image_library'] = 'gd2';
+                        $configi['source_image'] = $path;
+                        $config['encrypt_name'] = TRUE;
+                        $configi['maintain_ratio'] = TRUE;
+                        $configi['overwrite']     = TRUE;
+                        $configi['width'] = '150';
+                        $configi['height'] = '150';
+
+                        $this->load->library('image_lib', $configi);
+                        $this->image_lib->initialize($configi);
+                        $this->image_lib->resize();
+                        $this->image_lib->clear();
+                    }
+                    
+                     $images[] =   $imagename;
+                }
+
+                  $fileName = implode(',',$images);
+                  $this->test_model->saveProduct($this->input->post(),$fileName);
+                  redirect('welcome/index');
+                
+               
+        
+
+            
+    }
